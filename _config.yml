@@ -103,7 +103,7 @@ theme: matery
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: git
-  repo: https://github.com/alan5798/Alan.github.io.git
+  repo: git@github.com:alan5798/Alan.github.io.git
   branch: master
 
 markdown:
