@@ -43,9 +43,9 @@ menu:
 # 站点运行开始时间.
 time:
   enable: true
-  year: 2023 # 年份
-  month: 08 # 月份
-  date: 01 # 日期
+  year: 2025 # 年份
+  month: 11 # 月份
+  date: 04 # 日期
   hour: 00 # 小时
   minute: 00 # 分钟
   second: 00 # 秒
@@ -154,17 +154,17 @@ indexbtn:
   enable: true
   name: Github
   icon: fab fa-github-alt
-  url: https://github.com/Leager-zju
+  url: https://github.com/alan5798
 
 # The configurations of the second line of home banner
 # icon/button will not show up if you leave the corresponding socialLink empty
 # 首页 banner 中的第二行个人信息配置，留空即不启用
 socialLink:
-  github:  https://github.com/Leager-zju
-  email: 1004729740@qq.com
+  github:  https://github.com/alan5798
+  email: 18301701572@163.com
   facebook: # https://www.facebook.com/xxx
   twitter: # https://twitter.com/xxx
-  qq: 1004729740
+  qq: #no qq
   weibo: # https://weibo.com/xxx
   zhihu: # https://www.zhihu.com/xxx
   rss: false # true、false
@@ -378,7 +378,7 @@ changyan:
 # 配置是否在 header 中显示 fork me on github 的图标，默认为true，你可以修改为你的仓库地址.
 githubLink:
   enable: true
-  url: https://github.com/Leager-zju
+  url: https://github.com/alan5798
   title: Fork Me
 
 # The configuration of the Twikoo comment module is not activated by default.
