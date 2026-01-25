@@ -1,4 +1,10 @@
-## transformer核心逻辑图
+---
+title: Attention is all you need 
+data: $(date '+%Y-%m-%d %H:%M:%S')
+tags: [人工智能]
+---
+
+# transformer核心逻辑图
 ![[Pasted image 20251229135700.png]]
 
 ## 1 Input Embedding
