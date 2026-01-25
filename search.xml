@@ -10,9 +10,9 @@
       </tags>
   </entry>
   <entry>
-    <title></title>
+    <title>Attention Is All You Need</title>
     <url>/Alan.github.io/uncategorized/kuang-shi-zhi-zuo-attention-is-all-you-need/</url>
-    <content><![CDATA[<h2 id="transformer核心逻辑图"><a class="header-anchor" href="#transformer核心逻辑图">#</a>transformer核心逻辑图</h2>
+    <content><![CDATA[<h1>transformer核心逻辑图</h1>
 <p>![[Pasted image 20251229135700.png]]</p>
 <h2 id="1-Input-Embedding"><a class="header-anchor" href="#1-Input-Embedding">#</a>1 Input Embedding</h2>
 <p>所有的词都是一个512维的向量，这个向量里面具体的内容是需要被训练的，最开始的时候可以认为是随机的小数字，随机分配大概在[-5,5]之间左右的一个正太分布（<strong>工程经验，没有为什么</strong>）。当然有一个字典来对应两者的关系。最后整个内容以n* 512的矩阵输入（n个token，每个字512维）<br>
@@ -135,5 +135,8 @@ M834 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist
 </li>
 </ul>
 ]]></content>
+      <tags>
+        <tag>人工智能</tag>
+      </tags>
   </entry>
 </search>
