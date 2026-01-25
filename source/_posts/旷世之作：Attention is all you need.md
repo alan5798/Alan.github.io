@@ -1,4 +1,5 @@
 ---
+postTagTitle: 人工智能
 title: Attention is all you need 
 data: $(date '+%Y-%m-%d %H:%M:%S')
 tags: [人工智能]
