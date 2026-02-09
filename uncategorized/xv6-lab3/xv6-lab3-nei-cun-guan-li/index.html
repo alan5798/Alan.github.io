@@ -4,8 +4,11 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="归档: 2026, Alan的博客">
-    <meta name="description" content="ciallo~">
+    <meta name="keywords" content="Alan的博客">
+    <meta name="description" content="#进程的虚拟内存是如何分配的？
+#MMU
+每一个进程都有一个虚拟的，独立的内存空间，从00000-MAX。为了达到这个目标，我们为每一个进程设置一个MMU，MMU的功能是将虚拟的内存地址和真实的内存地址家里起一个对应。
+MMU的本质是一个3">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -17,7 +20,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>归档: 2026 | Alan的博客</title>
+    <title>Alan的博客</title>
     <link rel="icon" type="image/png" href="/Alan.github.io/dt.png">
     
 
@@ -243,364 +246,309 @@
 
 </header>
 
-    <div class="bg-cover pd-header about-cover">
-    <div class="container">
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/Alan.github.io/medias/featureimages/0.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title"></h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
     <div class="row">
-    <div class="col s10 offset-s1 m8 offset-m2 l8 offset-l2">
-        <div class="brand">
-            <div class="title center-align">
-                
-                因思考而快乐
-                
-            </div>
-
-            <div class="description center-align">
-                
-                    ciallo~
-                
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<script>
-    $('.bg-cover').css('background-image', 'url(/Alan.github.io/medias/banner/0.jpg)');
-</script>
-
-
-    </div>
-</div>
-
-<main class="content">
-
-    
-    <div class="container archive-calendar">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
     <div class="card">
-        <div id="post-calendar" class="card-content"></div>
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                          <div class="article-tag">
+                            <span class="chip bg-color">这个人太懒了，都不想加标签</span>
+                          </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2026-02-09
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/Alan.github.io/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h2 id="进程的虚拟内存是如何分配的？"><a class="header-anchor" href="#进程的虚拟内存是如何分配的？">#</a>进程的虚拟内存是如何分配的？</h2>
+<h3 id="MMU"><a class="header-anchor" href="#MMU">#</a>MMU</h3>
+<p>每一个进程都有一个虚拟的，独立的内存空间，从00000-MAX。为了达到这个目标，我们为每一个进程设置一个MMU，MMU的功能是将虚拟的内存地址和真实的内存地址家里起一个对应。</p>
+<p>MMU的本质是一个3层的512叉树，树的节点被称作PTE，功能是将64位的虚拟地址（下文简称VA）和56位的物理地址（下文简称PA）一一对应。</p>
+<h3 id="MMU的运行原理"><a class="header-anchor" href="#MMU的运行原理">#</a>MMU的运行原理</h3>
+<p>对于64位的VA，我们将它拆成25+9+9+9+12；对于56位的物理地址PA，我们将它拆成44+12。VA中的后12位与PA中的后12位完全相同，直接等价，这对应OS中页的概念（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>12</mn></msup><mo>=</mo><mn>4</mn><mi>K</mi><mi>B</mi></mrow><annotation encoding="application/x-tex">2^{12}=4KB</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">12</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">4</span><span class="mord mathnormal" style="margin-right:0.07153em;">K</span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span></span></span></span>)。VA中的前25位直接舍弃。而对于中间的9+9+9，就分别对应了MMU的3层512叉树（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>9</mn></msup><mo>=</mo><mn>512</mn></mrow><annotation encoding="application/x-tex">2^9=512</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">9</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">512</span></span></span></span>)。</p>
+<p>MMU作为树是动态生长的，即最开始并不存在一个完整的3层512叉树，而是虚拟地址进入MMU后被创建的。而创建的过程如下图所示</p>
+<h3 id="虚拟内存映射图"><a class="header-anchor" href="#虚拟内存映射图">#</a>虚拟内存映射图</h3>
+<p>![[virtual address to physical address.png]]<br>
+图中PPN就是Physical Page Number的缩写，后面的10位RSW D A G U X W R V 就是Flags，第一层和第二层的PPN是为了找到后面一个tree在哪里的，而最后一个PPN决定了最终的物理地址PA（physical address)。</p>
+<h2 id="物理内存与虚拟内存的全局对应关系"><a class="header-anchor" href="#物理内存与虚拟内存的全局对应关系">#</a>物理内存与虚拟内存的全局对应关系</h2>
+<h3 id="物理内存与虚拟内存映射的全局映射关系图"><a class="header-anchor" href="#物理内存与虚拟内存映射的全局映射关系图">#</a>物理内存与虚拟内存映射的全局映射关系图</h3>
+<p>![[global memory mapping.png]]</p>
+<h4 id="硬件驱动存储区"><a class="header-anchor" href="#硬件驱动存储区">#</a>硬件驱动存储区</h4>
+<p>由图可以观察到，物理内存的最底层1000是不用的，ROM是只读内存，属于系统核心文件。在0x02000000才开始使用。而到KERNBASE线前，这部分的内存属于硬件驱动程序，虚拟地址和实际地址意一一对应。</p>
+<h4 id="内核存储区"><a class="header-anchor" href="#内核存储区">#</a>内核存储区</h4>
+<p>在kernbase到Phystop之间的程序就是内核程序，也就是我们熟悉的操作系统所存储的地方，这里的虚拟地址和物理地址一一对应（从中我们可知内核态的程序所谓的全知视角，所谓可以看到物理内存，根本原因是他们的虚拟内存和物理内存是一一对应的，故而内核进程可以说自己决定的是真实地址）</p>
+<h4 id="进程存储区"><a class="header-anchor" href="#进程存储区">#</a>进程存储区</h4>
+<p>在kernbase这条线之上，也就是一个进程以为自以为自己拥有的内存，但实际是经过MMU分配的结果，而值得注意的是每个进程的顶层，即Trampoline（蹦床）都指向了内核的同一个位置，这是方便操作系统对各个进程的控制。</p>
+<h2 id="进程内内存的分布"><a class="header-anchor" href="#进程内内存的分布">#</a>进程内内存的分布</h2>
+<h3 id="进程内内存分布图"><a class="header-anchor" href="#进程内内存分布图">#</a>进程内内存分布图</h3>
+<p>![[user’s memory.png]]<br>
+这张图里stack和heap的位置和一般的操作系统相反，一般的布局是stack在上向下生长，而heap从下往上生长。这张图其他的信息比较明确就不做解释了。</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            <span class="chip bg-color">这个人太懒了，都不想加标签</span>
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/Alan.github.io/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="qq,wechat" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/Alan.github.io/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
+            <div class="card">
+                <a href="/Alan.github.io/uncategorized/xv6-lab3/xv6-lab3-nei-cun-guan-li/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/Alan.github.io/medias/featureimages/0.jpg" class="responsive-img" alt="">
+                        
+                        <span class="card-title"></span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2026-02-09
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            alan-liu
+                            
+                        </span>
+                    </div>
+                </div>
+
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/Alan.github.io/uncategorized/xv6-lab3/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/Alan.github.io/medias/featureimages/0.jpg" class="responsive-img" alt="Xv6-Lab3学习笔记">
+                        
+                        <span class="card-title">Xv6-Lab3学习笔记</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2026-01-25
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            alan-liu
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/Alan.github.io/tags/xv6/">
+                        <span class="chip bg-color">xv6</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/Alan.github.io/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/Alan.github.io/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/Alan.github.io/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/Alan.github.io/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/Alan.github.io/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
     </div>
 </div>
 
-<script type="text/javascript" src="/Alan.github.io/libs/echarts/echarts.min.js"></script>
-<script type="text/javascript">
-    let myChart = echarts.init(document.getElementById('post-calendar'));
+<!-- TOC 悬浮按钮. -->
 
-    
 
-    let option = {
-        title: {
-            top: 0,
-            text: '文章日历',
-            left: 'center',
-            textStyle: {
-                color: '#3C4858'
+<script src="/Alan.github.io/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('4'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
             }
-        },
-        tooltip: {
-            padding: 10,
-            backgroundColor: '#555',
-            borderColor: '#777',
-            borderWidth: 1,
-            formatter: function (obj) {
-                var value = obj.value;
-                return '<div style="font-size: 14px;">' + value[0] + '：' + value[1] + '</div>';
-            }
-        },
-        visualMap: {
-            show: true,
-            showLabel: true,
-            categories: [0, 1, 2, 3, 4],
-            calculable: true,
-            inRange: {
-                symbol: 'rect',
-                color: ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127']
-            },
-            itemWidth: 12,
-            itemHeight: 12,
-            orient: 'horizontal',
-            left: 'center',
-            bottom: 0
-        },
-        calendar: [{
-            left: 'center',
-            range: ["2025-02-09", "2026-02-09"],
-            cellSize: [13, 13],
-            splitLine: {
-                show: false
-            },
-            itemStyle: {
-                color: '#196127',
-                borderColor: '#fff',
-                borderWidth: 2
-            },
-            yearLabel: {
-                show: false
-            },
-            monthLabel: {
-                nameMap: 'cn',
-                fontSize: 11
-            },
-            dayLabel: {
-                formatter: '{start}  1st',
-                nameMap: 'cn',
-                fontSize: 11
-            }
-        }],
-        series: [{
-            type: 'heatmap',
-            coordinateSystem: 'calendar',
-            calendarIndex: 0,
-            data: [["2025-02-09", 0], ["2025-02-10", 0], ["2025-02-11", 0], ["2025-02-12", 0], ["2025-02-13", 0], ["2025-02-14", 0], ["2025-02-15", 0], ["2025-02-16", 0], ["2025-02-17", 0], ["2025-02-18", 0], ["2025-02-19", 0], ["2025-02-20", 0], ["2025-02-21", 0], ["2025-02-22", 0], ["2025-02-23", 0], ["2025-02-24", 0], ["2025-02-25", 0], ["2025-02-26", 0], ["2025-02-27", 0], ["2025-02-28", 0], ["2025-03-01", 0], ["2025-03-02", 0], ["2025-03-03", 0], ["2025-03-04", 0], ["2025-03-05", 0], ["2025-03-06", 0], ["2025-03-07", 0], ["2025-03-08", 0], ["2025-03-09", 0], ["2025-03-10", 0], ["2025-03-11", 0], ["2025-03-12", 0], ["2025-03-13", 0], ["2025-03-14", 0], ["2025-03-15", 0], ["2025-03-16", 0], ["2025-03-17", 0], ["2025-03-18", 0], ["2025-03-19", 0], ["2025-03-20", 0], ["2025-03-21", 0], ["2025-03-22", 0], ["2025-03-23", 0], ["2025-03-24", 0], ["2025-03-25", 0], ["2025-03-26", 0], ["2025-03-27", 0], ["2025-03-28", 0], ["2025-03-29", 0], ["2025-03-30", 0], ["2025-03-31", 0], ["2025-04-01", 0], ["2025-04-02", 0], ["2025-04-03", 0], ["2025-04-04", 0], ["2025-04-05", 0], ["2025-04-06", 0], ["2025-04-07", 0], ["2025-04-08", 0], ["2025-04-09", 0], ["2025-04-10", 0], ["2025-04-11", 0], ["2025-04-12", 0], ["2025-04-13", 0], ["2025-04-14", 0], ["2025-04-15", 0], ["2025-04-16", 0], ["2025-04-17", 0], ["2025-04-18", 0], ["2025-04-19", 0], ["2025-04-20", 0], ["2025-04-21", 0], ["2025-04-22", 0], ["2025-04-23", 0], ["2025-04-24", 0], ["2025-04-25", 0], ["2025-04-26", 0], ["2025-04-27", 0], ["2025-04-28", 0], ["2025-04-29", 0], ["2025-04-30", 0], ["2025-05-01", 0], ["2025-05-02", 0], ["2025-05-03", 0], ["2025-05-04", 0], ["2025-05-05", 0], ["2025-05-06", 0], ["2025-05-07", 0], ["2025-05-08", 0], ["2025-05-09", 0], ["2025-05-10", 0], ["2025-05-11", 0], ["2025-05-12", 0], ["2025-05-13", 0], ["2025-05-14", 0], ["2025-05-15", 0], ["2025-05-16", 0], ["2025-05-17", 0], ["2025-05-18", 0], ["2025-05-19", 0], ["2025-05-20", 0], ["2025-05-21", 0], ["2025-05-22", 0], ["2025-05-23", 0], ["2025-05-24", 0], ["2025-05-25", 0], ["2025-05-26", 0], ["2025-05-27", 0], ["2025-05-28", 0], ["2025-05-29", 0], ["2025-05-30", 0], ["2025-05-31", 0], ["2025-06-01", 0], ["2025-06-02", 0], ["2025-06-03", 0], ["2025-06-04", 0], ["2025-06-05", 0], ["2025-06-06", 0], ["2025-06-07", 0], ["2025-06-08", 0], ["2025-06-09", 0], ["2025-06-10", 0], ["2025-06-11", 0], ["2025-06-12", 0], ["2025-06-13", 0], ["2025-06-14", 0], ["2025-06-15", 0], ["2025-06-16", 0], ["2025-06-17", 0], ["2025-06-18", 0], ["2025-06-19", 0], ["2025-06-20", 0], ["2025-06-21", 0], ["2025-06-22", 0], ["2025-06-23", 0], ["2025-06-24", 0], ["2025-06-25", 0], ["2025-06-26", 0], ["2025-06-27", 0], ["2025-06-28", 0], ["2025-06-29", 0], ["2025-06-30", 0], ["2025-07-01", 0], ["2025-07-02", 0], ["2025-07-03", 0], ["2025-07-04", 0], ["2025-07-05", 0], ["2025-07-06", 0], ["2025-07-07", 0], ["2025-07-08", 0], ["2025-07-09", 0], ["2025-07-10", 0], ["2025-07-11", 0], ["2025-07-12", 0], ["2025-07-13", 0], ["2025-07-14", 0], ["2025-07-15", 0], ["2025-07-16", 0], ["2025-07-17", 0], ["2025-07-18", 0], ["2025-07-19", 0], ["2025-07-20", 0], ["2025-07-21", 0], ["2025-07-22", 0], ["2025-07-23", 0], ["2025-07-24", 0], ["2025-07-25", 0], ["2025-07-26", 0], ["2025-07-27", 0], ["2025-07-28", 0], ["2025-07-29", 0], ["2025-07-30", 0], ["2025-07-31", 0], ["2025-08-01", 0], ["2025-08-02", 0], ["2025-08-03", 0], ["2025-08-04", 0], ["2025-08-05", 0], ["2025-08-06", 0], ["2025-08-07", 0], ["2025-08-08", 0], ["2025-08-09", 0], ["2025-08-10", 0], ["2025-08-11", 0], ["2025-08-12", 0], ["2025-08-13", 0], ["2025-08-14", 0], ["2025-08-15", 0], ["2025-08-16", 0], ["2025-08-17", 0], ["2025-08-18", 0], ["2025-08-19", 0], ["2025-08-20", 0], ["2025-08-21", 0], ["2025-08-22", 0], ["2025-08-23", 0], ["2025-08-24", 0], ["2025-08-25", 0], ["2025-08-26", 0], ["2025-08-27", 0], ["2025-08-28", 0], ["2025-08-29", 0], ["2025-08-30", 0], ["2025-08-31", 0], ["2025-09-01", 0], ["2025-09-02", 0], ["2025-09-03", 0], ["2025-09-04", 0], ["2025-09-05", 0], ["2025-09-06", 0], ["2025-09-07", 0], ["2025-09-08", 0], ["2025-09-09", 0], ["2025-09-10", 0], ["2025-09-11", 0], ["2025-09-12", 0], ["2025-09-13", 0], ["2025-09-14", 0], ["2025-09-15", 0], ["2025-09-16", 0], ["2025-09-17", 0], ["2025-09-18", 0], ["2025-09-19", 0], ["2025-09-20", 0], ["2025-09-21", 0], ["2025-09-22", 0], ["2025-09-23", 0], ["2025-09-24", 0], ["2025-09-25", 0], ["2025-09-26", 0], ["2025-09-27", 0], ["2025-09-28", 0], ["2025-09-29", 0], ["2025-09-30", 0], ["2025-10-01", 0], ["2025-10-02", 0], ["2025-10-03", 0], ["2025-10-04", 0], ["2025-10-05", 0], ["2025-10-06", 0], ["2025-10-07", 0], ["2025-10-08", 0], ["2025-10-09", 0], ["2025-10-10", 0], ["2025-10-11", 0], ["2025-10-12", 0], ["2025-10-13", 0], ["2025-10-14", 0], ["2025-10-15", 0], ["2025-10-16", 0], ["2025-10-17", 0], ["2025-10-18", 0], ["2025-10-19", 0], ["2025-10-20", 0], ["2025-10-21", 0], ["2025-10-22", 0], ["2025-10-23", 0], ["2025-10-24", 0], ["2025-10-25", 0], ["2025-10-26", 0], ["2025-10-27", 0], ["2025-10-28", 0], ["2025-10-29", 0], ["2025-10-30", 0], ["2025-10-31", 0], ["2025-11-01", 0], ["2025-11-02", 0], ["2025-11-03", 0], ["2025-11-04", 0], ["2025-11-05", 0], ["2025-11-06", 0], ["2025-11-07", 0], ["2025-11-08", 0], ["2025-11-09", 0], ["2025-11-10", 0], ["2025-11-11", 0], ["2025-11-12", 0], ["2025-11-13", 0], ["2025-11-14", 0], ["2025-11-15", 0], ["2025-11-16", 0], ["2025-11-17", 0], ["2025-11-18", 0], ["2025-11-19", 0], ["2025-11-20", 0], ["2025-11-21", 0], ["2025-11-22", 0], ["2025-11-23", 0], ["2025-11-24", 0], ["2025-11-25", 0], ["2025-11-26", 0], ["2025-11-27", 0], ["2025-11-28", 0], ["2025-11-29", 0], ["2025-11-30", 0], ["2025-12-01", 0], ["2025-12-02", 0], ["2025-12-03", 0], ["2025-12-04", 0], ["2025-12-05", 0], ["2025-12-06", 0], ["2025-12-07", 0], ["2025-12-08", 0], ["2025-12-09", 0], ["2025-12-10", 0], ["2025-12-11", 0], ["2025-12-12", 0], ["2025-12-13", 0], ["2025-12-14", 0], ["2025-12-15", 0], ["2025-12-16", 0], ["2025-12-17", 0], ["2025-12-18", 0], ["2025-12-19", 0], ["2025-12-20", 0], ["2025-12-21", 0], ["2025-12-22", 0], ["2025-12-23", 0], ["2025-12-24", 0], ["2025-12-25", 0], ["2025-12-26", 0], ["2025-12-27", 0], ["2025-12-28", 0], ["2025-12-29", 0], ["2025-12-30", 0], ["2025-12-31", 0], ["2026-01-01", 0], ["2026-01-02", 0], ["2026-01-03", 0], ["2026-01-04", 0], ["2026-01-05", 0], ["2026-01-06", 0], ["2026-01-07", 0], ["2026-01-08", 0], ["2026-01-09", 0], ["2026-01-10", 0], ["2026-01-11", 0], ["2026-01-12", 0], ["2026-01-13", 0], ["2026-01-14", 0], ["2026-01-15", 0], ["2026-01-16", 0], ["2026-01-17", 0], ["2026-01-18", 0], ["2026-01-19", 0], ["2026-01-20", 0], ["2026-01-21", 0], ["2026-01-22", 0], ["2026-01-23", 1], ["2026-01-24", 0], ["2026-01-25", 2], ["2026-01-26", 0], ["2026-01-27", 0], ["2026-01-28", 0], ["2026-01-29", 0], ["2026-01-30", 0], ["2026-01-31", 0], ["2026-02-01", 0], ["2026-02-02", 0], ["2026-02-03", 0], ["2026-02-04", 0], ["2026-02-05", 0], ["2026-02-06", 0], ["2026-02-07", 0], ["2026-02-08", 0], ["2026-02-09", 1]]
-        }]
+        });
 
-    };
-
-    myChart.setOption(option);
+        
+    });
 </script>
 
     
-
-    
-
-    <div id="cd-timeline" class="container">
-        
-        <div class="cd-timeline-block">
-
-            
-            
-            
-            <div class="cd-timeline-img year" data-aos="zoom-in-up">
-                <a href="/Alan.github.io/archives/2026">2026</a>
-            </div>
-            
-
-            
-            
-            
-            <div class="cd-timeline-img month" data-aos="zoom-in-up">
-                <a href="/Alan.github.io/archives/2026/02">02</a>
-            </div>
-            
-
-            
-            <div class="cd-timeline-img day" data-aos="zoom-in-up">
-                <span>09</span>
-            </div>
-            <article class="cd-timeline-content" data-aos="fade-up">
-                <div class="article col s12 m6">
-                    <div class="card">
-                        <a href="/Alan.github.io/uncategorized/xv6-lab3/xv6-lab3-nei-cun-guan-li/">
-                            <div class="card-image">
-                                
-                                
-                                <img src="/Alan.github.io/medias/featureimages/0.jpg" class="responsive-img" alt="">
-                                
-                                <span class="card-title"></span>
-                            </div>
-                        </a>
-                        <div class="card-content article-content">
-                            <div class="summary block-with-text">
-                                
-                                    #进程的虚拟内存是如何分配的？
-#MMU
-每一个进程都有一个虚拟的，独立的内存空间，从00000-MAX。为了达到这个目标，我们为每一个进程设置一个MMU，MMU的功能是将虚拟的内存地址和真实的内存地址家里起一个对应。
-MMU的本质是一个3
-                                
-                            </div>
-                            <div class="publish-info">
-                                <span class="publish-date">
-                                    <i class="far fa-clock fa-fw icon-date"></i>2026-02-09
-                                </span>
-                                <span class="publish-author">
-                                    
-                                    <i class="fas fa-user fa-fw"></i>
-                                    alan-liu
-                                    
-                                </span>
-                            </div>
-                        </div>
-
-                        
-                    </div>
-                </div>
-            </article>
-        </div>
-        
-        <div class="cd-timeline-block">
-
-            
-            
-
-            
-            
-            
-            <div class="cd-timeline-img month" data-aos="zoom-in-up">
-                <a href="/Alan.github.io/archives/2026/01">01</a>
-            </div>
-            
-
-            
-            <div class="cd-timeline-img day" data-aos="zoom-in-up">
-                <span>25</span>
-            </div>
-            <article class="cd-timeline-content" data-aos="fade-up">
-                <div class="article col s12 m6">
-                    <div class="card">
-                        <a href="/Alan.github.io/uncategorized/xv6-lab3/">
-                            <div class="card-image">
-                                
-                                
-                                <img src="/Alan.github.io/medias/featureimages/0.jpg" class="responsive-img" alt="Xv6-Lab3学习笔记">
-                                
-                                <span class="card-title">Xv6-Lab3学习笔记</span>
-                            </div>
-                        </a>
-                        <div class="card-content article-content">
-                            <div class="summary block-with-text">
-                                
-                                    
-                                
-                            </div>
-                            <div class="publish-info">
-                                <span class="publish-date">
-                                    <i class="far fa-clock fa-fw icon-date"></i>2026-01-25
-                                </span>
-                                <span class="publish-author">
-                                    
-                                    <i class="fas fa-user fa-fw"></i>
-                                    alan-liu
-                                    
-                                </span>
-                            </div>
-                        </div>
-
-                        
-                        <div class="card-action article-tags">
-                            
-                            <a href="/Alan.github.io/tags/xv6/"><span class="chip bg-color">xv6</span></a>
-                            
-                        </div>
-                        
-                    </div>
-                </div>
-            </article>
-        </div>
-        
-        <div class="cd-timeline-block">
-
-            
-            
-
-            
-            
-
-            
-            <div class="cd-timeline-img day" data-aos="zoom-in-up">
-                <span>25</span>
-            </div>
-            <article class="cd-timeline-content" data-aos="fade-up">
-                <div class="article col s12 m6">
-                    <div class="card">
-                        <a href="/Alan.github.io/uncategorized/kuang-shi-zhi-zuo-attention-is-all-you-need/">
-                            <div class="card-image">
-                                
-                                
-                                <img src="/Alan.github.io/medias/featureimages/0.jpg" class="responsive-img" alt="Attention Is All You Need">
-                                
-                                <span class="card-title">Attention Is All You Need</span>
-                            </div>
-                        </a>
-                        <div class="card-content article-content">
-                            <div class="summary block-with-text">
-                                
-                                    transformer核心逻辑图
-![[Pasted image 20251229135700.png]]
-#1 Input Embedding
-所有的词都是一个512维的向量，这个向量里面具体的内容是需要被训练的，最开始的时候可以认为是随
-                                
-                            </div>
-                            <div class="publish-info">
-                                <span class="publish-date">
-                                    <i class="far fa-clock fa-fw icon-date"></i>2026-01-25
-                                </span>
-                                <span class="publish-author">
-                                    
-                                    <i class="fas fa-user fa-fw"></i>
-                                    alan-liu
-                                    
-                                </span>
-                            </div>
-                        </div>
-
-                        
-                        <div class="card-action article-tags">
-                            
-                            <a href="/Alan.github.io/tags/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/"><span class="chip bg-color">人工智能</span></a>
-                            
-                        </div>
-                        
-                    </div>
-                </div>
-            </article>
-        </div>
-        
-        <div class="cd-timeline-block">
-
-            
-            
-
-            
-            
-
-            
-            <div class="cd-timeline-img day" data-aos="zoom-in-up">
-                <span>23</span>
-            </div>
-            <article class="cd-timeline-content" data-aos="fade-up">
-                <div class="article col s12 m6">
-                    <div class="card">
-                        <a href="/Alan.github.io/uncategorized/first-essay/">
-                            <div class="card-image">
-                                
-                                
-                                <img src="/Alan.github.io/medias/featureimages/0.jpg" class="responsive-img" alt="测试博客">
-                                
-                                <span class="card-title">测试博客</span>
-                            </div>
-                        </a>
-                        <div class="card-content article-content">
-                            <div class="summary block-with-text">
-                                
-                                    这是我的第一篇markdown文档
-
-                                
-                            </div>
-                            <div class="publish-info">
-                                <span class="publish-date">
-                                    <i class="far fa-clock fa-fw icon-date"></i>2026-01-23
-                                </span>
-                                <span class="publish-author">
-                                    
-                                    <i class="fas fa-user fa-fw"></i>
-                                    alan-liu
-                                    
-                                </span>
-                            </div>
-                        </div>
-
-                        
-                        <div class="card-action article-tags">
-                            
-                            <a href="/Alan.github.io/tags/%E6%B5%8B%E8%AF%95/"><span class="chip bg-color">测试</span></a>
-                            
-                        </div>
-                        
-                    </div>
-                </div>
-            </article>
-        </div>
-        
-    </div>
 
 </main>
 
