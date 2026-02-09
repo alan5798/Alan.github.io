@@ -1,48 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>测试博客</title>
-    <url>/Alan.github.io/uncategorized/first-essay/</url>
-    <content><![CDATA[<p>这是我的第一篇markdown文档</p>
-]]></content>
-      <tags>
-        <tag>测试</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Xv6-Lab3内存管理</title>
-    <url>/Alan.github.io/uncategorized/xv6-lab3/xv6-lab3-nei-cun-guan-li/</url>
-    <content><![CDATA[<h2 id="进程的虚拟内存是如何分配的？"><a class="header-anchor" href="#进程的虚拟内存是如何分配的？">#</a>进程的虚拟内存是如何分配的？</h2>
-<h3 id="MMU"><a class="header-anchor" href="#MMU">#</a>MMU</h3>
-<p>每一个进程都有一个虚拟的，独立的内存空间，从00000-MAX。为了达到这个目标，我们为每一个进程设置一个MMU，MMU的功能是将虚拟的内存地址和真实的内存地址家里起一个对应。</p>
-<p>MMU的本质是一个3层的512叉树，树的节点被称作PTE，功能是将64位的虚拟地址（下文简称VA）和56位的物理地址（下文简称PA）一一对应。</p>
-<h3 id="MMU的运行原理"><a class="header-anchor" href="#MMU的运行原理">#</a>MMU的运行原理</h3>
-<p>对于64位的VA，我们将它拆成25+9+9+9+12；对于56位的物理地址PA，我们将它拆成44+12。VA中的后12位与PA中的后12位完全相同，直接等价，这对应OS中页的概念（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>12</mn></msup><mo>=</mo><mn>4</mn><mi>K</mi><mi>B</mi></mrow><annotation encoding="application/x-tex">2^{12}=4KB</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">12</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">4</span><span class="mord mathnormal" style="margin-right:0.07153em;">K</span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span></span></span></span>)。VA中的前25位直接舍弃。而对于中间的9+9+9，就分别对应了MMU的3层512叉树（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>9</mn></msup><mo>=</mo><mn>512</mn></mrow><annotation encoding="application/x-tex">2^9=512</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">9</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">512</span></span></span></span>)。</p>
-<p>MMU作为树是动态生长的，即最开始并不存在一个完整的3层512叉树，而是虚拟地址进入MMU后被创建的。而创建的过程如下图所示</p>
-<h3 id="虚拟内存映射图"><a class="header-anchor" href="#虚拟内存映射图">#</a>虚拟内存映射图</h3>
-<p>![[virtual address to physical address.png]]<br>
-图中PPN就是Physical Page Number的缩写，后面的10位RSW D A G U X W R V 就是Flags，第一层和第二层的PPN是为了找到后面一个tree在哪里的，而最后一个PPN决定了最终的物理地址PA（physical address)。</p>
-<h2 id="物理内存与虚拟内存的全局对应关系"><a class="header-anchor" href="#物理内存与虚拟内存的全局对应关系">#</a>物理内存与虚拟内存的全局对应关系</h2>
-<h3 id="物理内存与虚拟内存映射的全局映射关系图"><a class="header-anchor" href="#物理内存与虚拟内存映射的全局映射关系图">#</a>物理内存与虚拟内存映射的全局映射关系图</h3>
-<p>![[global memory mapping.png]]</p>
-<h4 id="硬件驱动存储区"><a class="header-anchor" href="#硬件驱动存储区">#</a>硬件驱动存储区</h4>
-<p>由图可以观察到，物理内存的最底层1000是不用的，ROM是只读内存，属于系统核心文件。在0x02000000才开始使用。而到KERNBASE线前，这部分的内存属于硬件驱动程序，虚拟地址和实际地址意一一对应。</p>
-<h4 id="内核存储区"><a class="header-anchor" href="#内核存储区">#</a>内核存储区</h4>
-<p>在kernbase到Phystop之间的程序就是内核程序，也就是我们熟悉的操作系统所存储的地方，这里的虚拟地址和物理地址一一对应（从中我们可知内核态的程序所谓的全知视角，所谓可以看到物理内存，根本原因是他们的虚拟内存和物理内存是一一对应的，故而内核进程可以说自己决定的是真实地址）</p>
-<h4 id="进程存储区"><a class="header-anchor" href="#进程存储区">#</a>进程存储区</h4>
-<p>在kernbase这条线之上，也就是一个进程以为自以为自己拥有的内存，但实际是经过MMU分配的结果，而值得注意的是每个进程的顶层，即Trampoline（蹦床）都指向了内核的同一个位置，这是方便操作系统对各个进程的控制。</p>
-<h2 id="进程内内存的分布"><a class="header-anchor" href="#进程内内存的分布">#</a>进程内内存的分布</h2>
-<h3 id="进程内内存分布图"><a class="header-anchor" href="#进程内内存分布图">#</a>进程内内存分布图</h3>
-<p>![[user’s memory.png]]<br>
-这张图里stack和heap的位置和一般的操作系统相反，一般的布局是stack在上向下生长，而heap从下往上生长。这张图其他的信息比较明确就不做解释了。</p>
-]]></content>
-      <tags>
-        <tag>操作系统</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Attention Is All You Need</title>
-    <url>/Alan.github.io/uncategorized/attention-is-all-you-need/kuang-shi-zhi-zuo-attention-is-all-you-need/</url>
+    <url>/Alan.github.io/uncategorized/attention-is-all-you-need/</url>
     <content><![CDATA[<h2 id="transformer核心逻辑图"><a class="header-anchor" href="#transformer核心逻辑图">#</a>transformer核心逻辑图</h2>
 <p>![[theory graph.png]]</p>
 <h2 id="1-Input-Embedding"><a class="header-anchor" href="#1-Input-Embedding">#</a>1 Input Embedding</h2>
@@ -168,6 +128,46 @@ M834 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist
 ]]></content>
       <tags>
         <tag>人工智能</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>测试博客</title>
+    <url>/Alan.github.io/uncategorized/first-essay/</url>
+    <content><![CDATA[<p>这是我的第一篇markdown文档</p>
+]]></content>
+      <tags>
+        <tag>测试</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Xv6-Lab3内存管理</title>
+    <url>/Alan.github.io/uncategorized/xv6-lab3/</url>
+    <content><![CDATA[<h2 id="进程的虚拟内存是如何分配的？"><a class="header-anchor" href="#进程的虚拟内存是如何分配的？">#</a>进程的虚拟内存是如何分配的？</h2>
+<h3 id="MMU"><a class="header-anchor" href="#MMU">#</a>MMU</h3>
+<p>每一个进程都有一个虚拟的，独立的内存空间，从00000-MAX。为了达到这个目标，我们为每一个进程设置一个MMU，MMU的功能是将虚拟的内存地址和真实的内存地址家里起一个对应。</p>
+<p>MMU的本质是一个3层的512叉树，树的节点被称作PTE，功能是将64位的虚拟地址（下文简称VA）和56位的物理地址（下文简称PA）一一对应。</p>
+<h3 id="MMU的运行原理"><a class="header-anchor" href="#MMU的运行原理">#</a>MMU的运行原理</h3>
+<p>对于64位的VA，我们将它拆成25+9+9+9+12；对于56位的物理地址PA，我们将它拆成44+12。VA中的后12位与PA中的后12位完全相同，直接等价，这对应OS中页的概念（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>12</mn></msup><mo>=</mo><mn>4</mn><mi>K</mi><mi>B</mi></mrow><annotation encoding="application/x-tex">2^{12}=4KB</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">12</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">4</span><span class="mord mathnormal" style="margin-right:0.07153em;">K</span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span></span></span></span>)。VA中的前25位直接舍弃。而对于中间的9+9+9，就分别对应了MMU的3层512叉树（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>9</mn></msup><mo>=</mo><mn>512</mn></mrow><annotation encoding="application/x-tex">2^9=512</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">9</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">512</span></span></span></span>)。</p>
+<p>MMU作为树是动态生长的，即最开始并不存在一个完整的3层512叉树，而是虚拟地址进入MMU后被创建的。而创建的过程如下图所示</p>
+<h3 id="虚拟内存映射图"><a class="header-anchor" href="#虚拟内存映射图">#</a>虚拟内存映射图</h3>
+<p>![[virtual address to physical address.png]]<br>
+图中PPN就是Physical Page Number的缩写，后面的10位RSW D A G U X W R V 就是Flags，第一层和第二层的PPN是为了找到后面一个tree在哪里的，而最后一个PPN决定了最终的物理地址PA（physical address)。</p>
+<h2 id="物理内存与虚拟内存的全局对应关系"><a class="header-anchor" href="#物理内存与虚拟内存的全局对应关系">#</a>物理内存与虚拟内存的全局对应关系</h2>
+<h3 id="物理内存与虚拟内存映射的全局映射关系图"><a class="header-anchor" href="#物理内存与虚拟内存映射的全局映射关系图">#</a>物理内存与虚拟内存映射的全局映射关系图</h3>
+<p>![[global memory mapping.png]]</p>
+<h4 id="硬件驱动存储区"><a class="header-anchor" href="#硬件驱动存储区">#</a>硬件驱动存储区</h4>
+<p>由图可以观察到，物理内存的最底层1000是不用的，ROM是只读内存，属于系统核心文件。在0x02000000才开始使用。而到KERNBASE线前，这部分的内存属于硬件驱动程序，虚拟地址和实际地址意一一对应。</p>
+<h4 id="内核存储区"><a class="header-anchor" href="#内核存储区">#</a>内核存储区</h4>
+<p>在kernbase到Phystop之间的程序就是内核程序，也就是我们熟悉的操作系统所存储的地方，这里的虚拟地址和物理地址一一对应（从中我们可知内核态的程序所谓的全知视角，所谓可以看到物理内存，根本原因是他们的虚拟内存和物理内存是一一对应的，故而内核进程可以说自己决定的是真实地址）</p>
+<h4 id="进程存储区"><a class="header-anchor" href="#进程存储区">#</a>进程存储区</h4>
+<p>在kernbase这条线之上，也就是一个进程以为自以为自己拥有的内存，但实际是经过MMU分配的结果，而值得注意的是每个进程的顶层，即Trampoline（蹦床）都指向了内核的同一个位置，这是方便操作系统对各个进程的控制。</p>
+<h2 id="进程内内存的分布"><a class="header-anchor" href="#进程内内存的分布">#</a>进程内内存的分布</h2>
+<h3 id="进程内内存分布图"><a class="header-anchor" href="#进程内内存分布图">#</a>进程内内存分布图</h3>
+<p>![[user’s memory.png]]<br>
+这张图里stack和heap的位置和一般的操作系统相反，一般的布局是stack在上向下生长，而heap从下往上生长。这张图其他的信息比较明确就不做解释了。</p>
+]]></content>
+      <tags>
+        <tag>操作系统</tag>
       </tags>
   </entry>
 </search>
