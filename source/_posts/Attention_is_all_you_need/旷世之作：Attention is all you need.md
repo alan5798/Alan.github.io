@@ -1,12 +1,5 @@
----
-postTagTitle: 人工智能
-title: Attention is all you need 
-data: $(date '+%Y-%m-%d %H:%M:%S')
-tags: [人工智能]
----
-
-# transformer核心逻辑图
-![[Pasted image 20251229135700.png]]
+## transformer核心逻辑图
+![[theory graph.png]]
 
 ## 1 Input Embedding
 所有的词都是一个512维的向量，这个向量里面具体的内容是需要被训练的，最开始的时候可以认为是随机的小数字，随机分配大概在[-5,5]之间左右的一个正太分布（**工程经验，没有为什么**）。当然有一个字典来对应两者的关系。最后整个内容以n* 512的矩阵输入（n个token，每个字512维）
