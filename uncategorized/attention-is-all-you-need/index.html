@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="keywords" content="Attention Is All You Need, Alan的博客">
     <meta name="description" content="#transformer核心逻辑图
-![[theory graph.png]]
+![](theory graph.png)
 #1 Input Embedding
 所有的词都是一个512维的向量，这个向量里面具体的内容是需要被训练的，最开始的时候可以认为是随机的小数字，随机分配大概在[">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -320,7 +320,7 @@
         <div class="card-content article-card-content">
             <div id="articleContent">
                 <h2 id="transformer核心逻辑图"><a class="header-anchor" href="#transformer核心逻辑图">#</a>transformer核心逻辑图</h2>
-<p>![[theory graph.png]]</p>
+<p>![](theory graph.png)</p>
 <h2 id="1-Input-Embedding"><a class="header-anchor" href="#1-Input-Embedding">#</a>1 Input Embedding</h2>
 <p>所有的词都是一个512维的向量，这个向量里面具体的内容是需要被训练的，最开始的时候可以认为是随机的小数字，随机分配大概在[-5,5]之间左右的一个正太分布（<strong>工程经验，没有为什么</strong>）。当然有一个字典来对应两者的关系。最后整个内容以n* 512的矩阵输入（n个token，每个字512维）<br>
 <strong>这个向量是很重要的,词向量之间的点积就表示了两者之间的关系</strong></p>
