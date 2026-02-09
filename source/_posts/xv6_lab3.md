@@ -17,12 +17,12 @@ MMU作为树是动态生长的，即最开始并不存在一个完整的3层512�
 
 ### 虚拟内存映射图
 
-![[virtual address to physical address.png]]
+![](virtual_address_to_physical_address.png)
 图中PPN就是Physical Page Number的缩写，后面的10位RSW D A G U X W R V 就是Flags，第一层和第二层的PPN是为了找到后面一个tree在哪里的，而最后一个PPN决定了最终的物理地址PA（physical address)。
 
 ## 物理内存与虚拟内存的全局对应关系
 ### 物理内存与虚拟内存映射的全局映射关系图
-![[global memory mapping.png]]
+![](global_memory_mapping.png)
 #### 硬件驱动存储区
 由图可以观察到，物理内存的最底层1000是不用的，ROM是只读内存，属于系统核心文件。在0x02000000才开始使用。而到KERNBASE线前，这部分的内存属于硬件驱动程序，虚拟地址和实际地址意一一对应。
 #### 内核存储区
@@ -32,5 +32,5 @@ MMU作为树是动态生长的，即最开始并不存在一个完整的3层512�
 
 ## 进程内内存的分布
 ### 进程内内存分布图
-![[user's memory.png]]
+![](user_memory.png)
 这张图里stack和heap的位置和一般的操作系统相反，一般的布局是stack在上向下生长，而heap从下往上生长。这张图其他的信息比较明确就不做解释了。
