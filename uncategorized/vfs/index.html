@@ -4,8 +4,10 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="归档, Alan的博客">
-    <meta name="description" content="ciallo~">
+    <meta name="keywords" content="Xv6-Lab9 文件管理系统VFS, Alan的博客">
+    <meta name="description" content="#VFS的基础逻辑图
+![[VFS.png]]
+首先值得强调的一点是，这个逻辑图应该稍有问题，以我学下来的理解logging part应该在Buffer cache的下面。这张图只是先从逻辑上先对OS如何操作硬盘进行一个分析，后面会具体分解">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -17,7 +19,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>归档 | Alan的博客</title>
+    <title>Xv6-Lab9 文件管理系统VFS | Alan的博客</title>
     <link rel="icon" type="image/png" href="/Alan.github.io/dt.png">
     
 
@@ -243,372 +245,376 @@
 
 </header>
 
-    <div class="bg-cover pd-header about-cover">
-    <div class="container">
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/Alan.github.io/medias/featureimages/0.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">Xv6-Lab9 文件管理系统VFS</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
     <div class="row">
-    <div class="col s10 offset-s1 m8 offset-m2 l8 offset-l2">
-        <div class="brand">
-            <div class="title center-align">
-                
-                因思考而快乐
-                
-            </div>
-
-            <div class="description center-align">
-                
-                    ciallo~
-                
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<script>
-    $('.bg-cover').css('background-image', 'url(/Alan.github.io/medias/banner/0.jpg)');
-</script>
-
-
-    </div>
-</div>
-
-<main class="content">
-
-    
-    <div class="container archive-calendar">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
     <div class="card">
-        <div id="post-calendar" class="card-content"></div>
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/Alan.github.io/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">
+                                <span class="chip bg-color">操作系统</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2026-02-12
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/Alan.github.io/libs/prism/prism.min.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h3 id="VFS的基础逻辑图"><a class="header-anchor" href="#VFS的基础逻辑图">#</a>VFS的基础逻辑图</h3>
+<p>![[VFS.png]]<br>
+首先值得强调的一点是，这个逻辑图应该稍有问题，以我学下来的理解logging part应该在Buffer cache的下面。这张图只是先从逻辑上先对OS如何操作硬盘进行一个分析，后面会具体分解</p>
+<h3 id="磁盘内部结构"><a class="header-anchor" href="#磁盘内部结构">#</a>磁盘内部结构</h3>
+<p><strong>回答的问题：磁盘是如何储存数据的，内部结构如何？</strong><br>
+![[Disk.png]]<br>
+这是xv6对于磁盘内部结构图的示意，对于磁盘而言，类似内存，我们也对其进行划分，和内存中page对应的，在磁盘中叫做block。那么自然而言的，大部分的磁盘空间肯定需要用来保存数据，所以被我们用来存放data，在图中也就是D。但是由于文件大小不一，不可能放在一起，同时文件又是我们操作系统操作的基本单位，所以就需要一些struct来管理文件，这些struct就是inode，也就是图中I的内容，在xv6中他们的大小是64Byte；关于inode后面会详细讲解。在处理完inode和data之后，我们还会想到需要一些数据来记录每一个block，是不是已经被分配了，还是未被处理，所以我们需要bit_map来记录信息，所以我们有了两个bit_map分别记录inode和data的信息，他们只有0，1组成，只记录每一个位置是不是被alloc了。</p>
+<h3 id="inode的定义"><a class="header-anchor" href="#inode的定义">#</a>inode的定义</h3>
+<p><strong>回答的问题：inode是什么，我们为什么需要inode</strong></p>
+<pre class="line-numbers language-none"><code class="language-none">struct inode {
+  uint dev;           // Device numbr
+  uint inum;          // Inode number
+  int ref;            // Reference count
+  struct sleeplock lock; // protects everything below here
+  int valid;          // inode has been read from disk?
+
+  short type;         // copy of disk inode
+  short major;
+  short minor;
+  short nlink;
+  uint sizejj;
+  uint addrs[NDIRECT+1];
+};<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>inode的核心职能就是储存文件的关键信息，比如大小，比如设备号等等，而在这当中，有几个比较重要的信息，一个是inum，这是这个文件唯一的inode号，通过inum可以找到对应的inode，第二个是uint addrs，这是文件组织block的关键，所有的block都是按照addrs按照顺序组织。</p>
+<p>值得注意的是对于磁盘中，我们还有一个dinode，而且这个dinode 的大小是64Byte，专门设计出来的，为了能够在一个1024的大小中刚好塞下16个dinode，所以相比上面的inode少了一些信息。</p>
+<h3 id="多级映射"><a class="header-anchor" href="#多级映射">#</a>多级映射</h3>
+<p><strong>回答的问题：inode是如何组织文件的，inode怎么把文件所在的不同block连在一起</strong></p>
+<p>关于addrs,在xv6中NDIRECT=12，但是一个文件显然可能不止<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>12</mn><mo>×</mo><mn>4</mn><mi>K</mi><mi>B</mi></mrow><annotation encoding="application/x-tex">12\times4KB</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">12</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">4</span><span class="mord mathnormal" style="margin-right:0.07153em;">K</span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span></span></span></span>，所以第12位就会留出来作为一个映射，它指向一个block的地址，而这个block则被用来专门储存地址。如果更大的文件，则可以以此类推，将倒数第二位流出来给一级映射，将最后一位留出来给二级映射。具体的操作可以看下面这段代码，这是bmap（一级映射的逻辑）</p>
+<pre class="line-numbers language-none"><code class="language-none">static uint
+bmap(struct inode *ip, uint bn)
+{
+&nbsp; uint addr, *a;
+&nbsp; struct buf *bp;
+&nbsp; if(bn &lt; NDIRECT){
+&nbsp; &nbsp; if((addr = ip-&gt;addrs[bn]) == 0){
+&nbsp; &nbsp; &nbsp; addr = balloc(ip-&gt;dev);
+&nbsp; &nbsp; &nbsp; if(addr == 0)
+&nbsp; &nbsp; &nbsp; &nbsp; return 0;
+&nbsp; &nbsp; &nbsp; ip-&gt;addrs[bn] = addr;
+&nbsp; &nbsp; }
+&nbsp; &nbsp; return addr;
+&nbsp; }
+&nbsp; bn -= NDIRECT;
+&nbsp; if(bn &lt; NINDIRECT){
+&nbsp; &nbsp; // Load indirect block, allocating if necessary.
+&nbsp; &nbsp; if((addr = ip-&gt;addrs[NDIRECT]) == 0){
+&nbsp; &nbsp; &nbsp; addr = balloc(ip-&gt;dev);
+&nbsp; &nbsp; &nbsp; if(addr == 0)
+&nbsp; &nbsp; &nbsp; &nbsp; return 0;
+&nbsp; &nbsp; &nbsp; ip-&gt;addrs[NDIRECT] = addr;
+&nbsp; &nbsp; }
+&nbsp; &nbsp; bp = bread(ip-&gt;dev, addr);
+&nbsp; &nbsp; a = (uint*)bp-&gt;data;
+&nbsp; &nbsp; if((addr = a[bn]) == 0){
+&nbsp; &nbsp; &nbsp; addr = balloc(ip-&gt;dev);
+&nbsp; &nbsp; &nbsp; if(addr){
+&nbsp; &nbsp; &nbsp; &nbsp; a[bn] = addr;
+&nbsp; &nbsp; &nbsp; &nbsp; log_write(bp);
+&nbsp; &nbsp; &nbsp; }
+&nbsp; &nbsp; }
+&nbsp; &nbsp; brelse(bp);
+&nbsp; &nbsp; return addr;
+&nbsp; }
+&nbsp; panic("bmap: out of range");
+&nbsp;}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="Pathname-and-Directory"><a class="header-anchor" href="#Pathname-and-Directory">#</a>Pathname and Directory</h3>
+<p><strong>回答的问题：当我们已经理解了文件是如何组织的，那操作系统是如何找到一个具体的文件的</strong></p>
+<p>Pathname 和Directory 的解析就是一个递归的过程。首先，在UNIX哲学中，一切皆文件，文件夹本身也是一个文件，包含了各个文件的inumber和自己的以及父目录的内容<br>
+![[route_analysis.png]]<br>
+如图所示，在记录好这些inumber后，解析路径的程序从根目录开始，依次递归地寻找所需要的文件，即根据自己的inumber，找到对应的inode，找到存储的data，读取出该目录下的name，进行比对，进而再找到对应的inumber，开启下一个循环。出于习惯，根目录的inumber一般是2。而由于IO操作是非常慢的，所以当进程找到对应的文件时，往往会保存每次解析得到的各文件夹和该文件的inumber，以避免反复重复解析。</p>
+<h3 id="Buffer-and-Logging"><a class="header-anchor" href="#Buffer-and-Logging">#</a>Buffer and Logging</h3>
+<p><strong>回答的问题：磁盘的每次IO操作是很慢的，同时由于断电风险引发的磁盘内部错位危机严重，我们有什么方法避免解决呢</strong></p>
+<p>Buffer 通过LRU原则（Least Recent Used)，将最新用过的信息储存在cache（cache本身在内存里），再刷入硬盘，通过这样的方式，如果cache已经满了的话，那就删掉least recent used的block。由于绝大多数时候需要使用的文件会反复使用，cache可以极大地提高效率。</p>
+<p>Logging则是用来解决断电危机的，由于一旦断电，内存里的内容将无法保存，所以我们需要保证重要的内容已经被写入硬盘。但是当我们需要传一个大文件的时候，大文件传到一半断电会导致硬盘中保存了错误的文件，为了解决该问题，我们设置了Logging 区，Logging区本身也在硬盘里，不过它不会立刻刷入data，它会等文件传输完之后的finished标签，如果得到了finished，则一起刷入data，如果没有，则在下次执行时把logging的部分全部删除，以保证文件的完整性。由于logging本身在一起，所以不同于需要磁针反复乱跳的data区，logging本身在硬盘上操作效率较高。</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/Alan.github.io/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">
+                                    <span class="chip bg-color">操作系统</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/Alan.github.io/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="qq,wechat" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/Alan.github.io/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
+            <div class="card">
+                <a href="/Alan.github.io/uncategorized/vfs/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/Alan.github.io/medias/featureimages/0.jpg" class="responsive-img" alt="Xv6-Lab9 文件管理系统VFS">
+                        
+                        <span class="card-title">Xv6-Lab9 文件管理系统VFS</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2026-02-12
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            alan-liu
+                            
+                        </span>
+                    </div>
+                </div>
+
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/Alan.github.io/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">
+                        <span class="chip bg-color">操作系统</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/Alan.github.io/uncategorized/attention-is-all-you-need/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/Alan.github.io/medias/featureimages/0.jpg" class="responsive-img" alt="Attention Is All You Need">
+                        
+                        <span class="card-title">Attention Is All You Need</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2026-02-09
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            alan-liu
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/Alan.github.io/tags/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/">
+                        <span class="chip bg-color">人工智能</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/Alan.github.io/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+  <!-- 是否加载使用自带的 prismjs. -->
+  <script type="text/javascript" src="/Alan.github.io/libs/prism/prism.min.js"></script>
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/Alan.github.io/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/Alan.github.io/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/Alan.github.io/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
     </div>
 </div>
 
-<script type="text/javascript" src="/Alan.github.io/libs/echarts/echarts.min.js"></script>
-<script type="text/javascript">
-    let myChart = echarts.init(document.getElementById('post-calendar'));
+<!-- TOC 悬浮按钮. -->
 
-    
 
-    let option = {
-        title: {
-            top: 0,
-            text: '文章日历',
-            left: 'center',
-            textStyle: {
-                color: '#3C4858'
+<script src="/Alan.github.io/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('4'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
             }
-        },
-        tooltip: {
-            padding: 10,
-            backgroundColor: '#555',
-            borderColor: '#777',
-            borderWidth: 1,
-            formatter: function (obj) {
-                var value = obj.value;
-                return '<div style="font-size: 14px;">' + value[0] + '：' + value[1] + '</div>';
-            }
-        },
-        visualMap: {
-            show: true,
-            showLabel: true,
-            categories: [0, 1, 2, 3, 4],
-            calculable: true,
-            inRange: {
-                symbol: 'rect',
-                color: ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127']
-            },
-            itemWidth: 12,
-            itemHeight: 12,
-            orient: 'horizontal',
-            left: 'center',
-            bottom: 0
-        },
-        calendar: [{
-            left: 'center',
-            range: ["2025-02-12", "2026-02-12"],
-            cellSize: [13, 13],
-            splitLine: {
-                show: false
-            },
-            itemStyle: {
-                color: '#196127',
-                borderColor: '#fff',
-                borderWidth: 2
-            },
-            yearLabel: {
-                show: false
-            },
-            monthLabel: {
-                nameMap: 'cn',
-                fontSize: 11
-            },
-            dayLabel: {
-                formatter: '{start}  1st',
-                nameMap: 'cn',
-                fontSize: 11
-            }
-        }],
-        series: [{
-            type: 'heatmap',
-            coordinateSystem: 'calendar',
-            calendarIndex: 0,
-            data: [["2025-02-12", 0], ["2025-02-13", 0], ["2025-02-14", 0], ["2025-02-15", 0], ["2025-02-16", 0], ["2025-02-17", 0], ["2025-02-18", 0], ["2025-02-19", 0], ["2025-02-20", 0], ["2025-02-21", 0], ["2025-02-22", 0], ["2025-02-23", 0], ["2025-02-24", 0], ["2025-02-25", 0], ["2025-02-26", 0], ["2025-02-27", 0], ["2025-02-28", 0], ["2025-03-01", 0], ["2025-03-02", 0], ["2025-03-03", 0], ["2025-03-04", 0], ["2025-03-05", 0], ["2025-03-06", 0], ["2025-03-07", 0], ["2025-03-08", 0], ["2025-03-09", 0], ["2025-03-10", 0], ["2025-03-11", 0], ["2025-03-12", 0], ["2025-03-13", 0], ["2025-03-14", 0], ["2025-03-15", 0], ["2025-03-16", 0], ["2025-03-17", 0], ["2025-03-18", 0], ["2025-03-19", 0], ["2025-03-20", 0], ["2025-03-21", 0], ["2025-03-22", 0], ["2025-03-23", 0], ["2025-03-24", 0], ["2025-03-25", 0], ["2025-03-26", 0], ["2025-03-27", 0], ["2025-03-28", 0], ["2025-03-29", 0], ["2025-03-30", 0], ["2025-03-31", 0], ["2025-04-01", 0], ["2025-04-02", 0], ["2025-04-03", 0], ["2025-04-04", 0], ["2025-04-05", 0], ["2025-04-06", 0], ["2025-04-07", 0], ["2025-04-08", 0], ["2025-04-09", 0], ["2025-04-10", 0], ["2025-04-11", 0], ["2025-04-12", 0], ["2025-04-13", 0], ["2025-04-14", 0], ["2025-04-15", 0], ["2025-04-16", 0], ["2025-04-17", 0], ["2025-04-18", 0], ["2025-04-19", 0], ["2025-04-20", 0], ["2025-04-21", 0], ["2025-04-22", 0], ["2025-04-23", 0], ["2025-04-24", 0], ["2025-04-25", 0], ["2025-04-26", 0], ["2025-04-27", 0], ["2025-04-28", 0], ["2025-04-29", 0], ["2025-04-30", 0], ["2025-05-01", 0], ["2025-05-02", 0], ["2025-05-03", 0], ["2025-05-04", 0], ["2025-05-05", 0], ["2025-05-06", 0], ["2025-05-07", 0], ["2025-05-08", 0], ["2025-05-09", 0], ["2025-05-10", 0], ["2025-05-11", 0], ["2025-05-12", 0], ["2025-05-13", 0], ["2025-05-14", 0], ["2025-05-15", 0], ["2025-05-16", 0], ["2025-05-17", 0], ["2025-05-18", 0], ["2025-05-19", 0], ["2025-05-20", 0], ["2025-05-21", 0], ["2025-05-22", 0], ["2025-05-23", 0], ["2025-05-24", 0], ["2025-05-25", 0], ["2025-05-26", 0], ["2025-05-27", 0], ["2025-05-28", 0], ["2025-05-29", 0], ["2025-05-30", 0], ["2025-05-31", 0], ["2025-06-01", 0], ["2025-06-02", 0], ["2025-06-03", 0], ["2025-06-04", 0], ["2025-06-05", 0], ["2025-06-06", 0], ["2025-06-07", 0], ["2025-06-08", 0], ["2025-06-09", 0], ["2025-06-10", 0], ["2025-06-11", 0], ["2025-06-12", 0], ["2025-06-13", 0], ["2025-06-14", 0], ["2025-06-15", 0], ["2025-06-16", 0], ["2025-06-17", 0], ["2025-06-18", 0], ["2025-06-19", 0], ["2025-06-20", 0], ["2025-06-21", 0], ["2025-06-22", 0], ["2025-06-23", 0], ["2025-06-24", 0], ["2025-06-25", 0], ["2025-06-26", 0], ["2025-06-27", 0], ["2025-06-28", 0], ["2025-06-29", 0], ["2025-06-30", 0], ["2025-07-01", 0], ["2025-07-02", 0], ["2025-07-03", 0], ["2025-07-04", 0], ["2025-07-05", 0], ["2025-07-06", 0], ["2025-07-07", 0], ["2025-07-08", 0], ["2025-07-09", 0], ["2025-07-10", 0], ["2025-07-11", 0], ["2025-07-12", 0], ["2025-07-13", 0], ["2025-07-14", 0], ["2025-07-15", 0], ["2025-07-16", 0], ["2025-07-17", 0], ["2025-07-18", 0], ["2025-07-19", 0], ["2025-07-20", 0], ["2025-07-21", 0], ["2025-07-22", 0], ["2025-07-23", 0], ["2025-07-24", 0], ["2025-07-25", 0], ["2025-07-26", 0], ["2025-07-27", 0], ["2025-07-28", 0], ["2025-07-29", 0], ["2025-07-30", 0], ["2025-07-31", 0], ["2025-08-01", 0], ["2025-08-02", 0], ["2025-08-03", 0], ["2025-08-04", 0], ["2025-08-05", 0], ["2025-08-06", 0], ["2025-08-07", 0], ["2025-08-08", 0], ["2025-08-09", 0], ["2025-08-10", 0], ["2025-08-11", 0], ["2025-08-12", 0], ["2025-08-13", 0], ["2025-08-14", 0], ["2025-08-15", 0], ["2025-08-16", 0], ["2025-08-17", 0], ["2025-08-18", 0], ["2025-08-19", 0], ["2025-08-20", 0], ["2025-08-21", 0], ["2025-08-22", 0], ["2025-08-23", 0], ["2025-08-24", 0], ["2025-08-25", 0], ["2025-08-26", 0], ["2025-08-27", 0], ["2025-08-28", 0], ["2025-08-29", 0], ["2025-08-30", 0], ["2025-08-31", 0], ["2025-09-01", 0], ["2025-09-02", 0], ["2025-09-03", 0], ["2025-09-04", 0], ["2025-09-05", 0], ["2025-09-06", 0], ["2025-09-07", 0], ["2025-09-08", 0], ["2025-09-09", 0], ["2025-09-10", 0], ["2025-09-11", 0], ["2025-09-12", 0], ["2025-09-13", 0], ["2025-09-14", 0], ["2025-09-15", 0], ["2025-09-16", 0], ["2025-09-17", 0], ["2025-09-18", 0], ["2025-09-19", 0], ["2025-09-20", 0], ["2025-09-21", 0], ["2025-09-22", 0], ["2025-09-23", 0], ["2025-09-24", 0], ["2025-09-25", 0], ["2025-09-26", 0], ["2025-09-27", 0], ["2025-09-28", 0], ["2025-09-29", 0], ["2025-09-30", 0], ["2025-10-01", 0], ["2025-10-02", 0], ["2025-10-03", 0], ["2025-10-04", 0], ["2025-10-05", 0], ["2025-10-06", 0], ["2025-10-07", 0], ["2025-10-08", 0], ["2025-10-09", 0], ["2025-10-10", 0], ["2025-10-11", 0], ["2025-10-12", 0], ["2025-10-13", 0], ["2025-10-14", 0], ["2025-10-15", 0], ["2025-10-16", 0], ["2025-10-17", 0], ["2025-10-18", 0], ["2025-10-19", 0], ["2025-10-20", 0], ["2025-10-21", 0], ["2025-10-22", 0], ["2025-10-23", 0], ["2025-10-24", 0], ["2025-10-25", 0], ["2025-10-26", 0], ["2025-10-27", 0], ["2025-10-28", 0], ["2025-10-29", 0], ["2025-10-30", 0], ["2025-10-31", 0], ["2025-11-01", 0], ["2025-11-02", 0], ["2025-11-03", 0], ["2025-11-04", 0], ["2025-11-05", 0], ["2025-11-06", 0], ["2025-11-07", 0], ["2025-11-08", 0], ["2025-11-09", 0], ["2025-11-10", 0], ["2025-11-11", 0], ["2025-11-12", 0], ["2025-11-13", 0], ["2025-11-14", 0], ["2025-11-15", 0], ["2025-11-16", 0], ["2025-11-17", 0], ["2025-11-18", 0], ["2025-11-19", 0], ["2025-11-20", 0], ["2025-11-21", 0], ["2025-11-22", 0], ["2025-11-23", 0], ["2025-11-24", 0], ["2025-11-25", 0], ["2025-11-26", 0], ["2025-11-27", 0], ["2025-11-28", 0], ["2025-11-29", 0], ["2025-11-30", 0], ["2025-12-01", 0], ["2025-12-02", 0], ["2025-12-03", 0], ["2025-12-04", 0], ["2025-12-05", 0], ["2025-12-06", 0], ["2025-12-07", 0], ["2025-12-08", 0], ["2025-12-09", 0], ["2025-12-10", 0], ["2025-12-11", 0], ["2025-12-12", 0], ["2025-12-13", 0], ["2025-12-14", 0], ["2025-12-15", 0], ["2025-12-16", 0], ["2025-12-17", 0], ["2025-12-18", 0], ["2025-12-19", 0], ["2025-12-20", 0], ["2025-12-21", 0], ["2025-12-22", 0], ["2025-12-23", 0], ["2025-12-24", 0], ["2025-12-25", 0], ["2025-12-26", 0], ["2025-12-27", 0], ["2025-12-28", 0], ["2025-12-29", 0], ["2025-12-30", 0], ["2025-12-31", 0], ["2026-01-01", 0], ["2026-01-02", 0], ["2026-01-03", 0], ["2026-01-04", 0], ["2026-01-05", 0], ["2026-01-06", 0], ["2026-01-07", 0], ["2026-01-08", 0], ["2026-01-09", 0], ["2026-01-10", 0], ["2026-01-11", 0], ["2026-01-12", 0], ["2026-01-13", 0], ["2026-01-14", 0], ["2026-01-15", 0], ["2026-01-16", 0], ["2026-01-17", 0], ["2026-01-18", 0], ["2026-01-19", 0], ["2026-01-20", 0], ["2026-01-21", 0], ["2026-01-22", 0], ["2026-01-23", 1], ["2026-01-24", 0], ["2026-01-25", 0], ["2026-01-26", 0], ["2026-01-27", 0], ["2026-01-28", 0], ["2026-01-29", 0], ["2026-01-30", 0], ["2026-01-31", 0], ["2026-02-01", 0], ["2026-02-02", 0], ["2026-02-03", 0], ["2026-02-04", 0], ["2026-02-05", 0], ["2026-02-06", 0], ["2026-02-07", 0], ["2026-02-08", 0], ["2026-02-09", 2], ["2026-02-10", 0], ["2026-02-11", 0], ["2026-02-12", 1]]
-        }]
+        });
 
-    };
-
-    myChart.setOption(option);
+        
+    });
 </script>
 
     
-
-    
-
-    <div id="cd-timeline" class="container">
-        
-        <div class="cd-timeline-block">
-
-            
-            
-            
-            <div class="cd-timeline-img year" data-aos="zoom-in-up">
-                <a href="/Alan.github.io/archives/2026">2026</a>
-            </div>
-            
-
-            
-            
-            
-            <div class="cd-timeline-img month" data-aos="zoom-in-up">
-                <a href="/Alan.github.io/archives/2026/02">02</a>
-            </div>
-            
-
-            
-            <div class="cd-timeline-img day" data-aos="zoom-in-up">
-                <span>12</span>
-            </div>
-            <article class="cd-timeline-content" data-aos="fade-up">
-                <div class="article col s12 m6">
-                    <div class="card">
-                        <a href="/Alan.github.io/uncategorized/vfs/">
-                            <div class="card-image">
-                                
-                                
-                                <img src="/Alan.github.io/medias/featureimages/0.jpg" class="responsive-img" alt="Xv6-Lab9 文件管理系统VFS">
-                                
-                                <span class="card-title">Xv6-Lab9 文件管理系统VFS</span>
-                            </div>
-                        </a>
-                        <div class="card-content article-content">
-                            <div class="summary block-with-text">
-                                
-                                    #VFS的基础逻辑图
-![[VFS.png]]
-首先值得强调的一点是，这个逻辑图应该稍有问题，以我学下来的理解logging part应该在Buffer cache的下面。这张图只是先从逻辑上先对OS如何操作硬盘进行一个分析，后面会具体分解
-                                
-                            </div>
-                            <div class="publish-info">
-                                <span class="publish-date">
-                                    <i class="far fa-clock fa-fw icon-date"></i>2026-02-12
-                                </span>
-                                <span class="publish-author">
-                                    
-                                    <i class="fas fa-user fa-fw"></i>
-                                    alan-liu
-                                    
-                                </span>
-                            </div>
-                        </div>
-
-                        
-                        <div class="card-action article-tags">
-                            
-                            <a href="/Alan.github.io/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"><span class="chip bg-color">操作系统</span></a>
-                            
-                        </div>
-                        
-                    </div>
-                </div>
-            </article>
-        </div>
-        
-        <div class="cd-timeline-block">
-
-            
-            
-
-            
-            
-
-            
-            <div class="cd-timeline-img day" data-aos="zoom-in-up">
-                <span>09</span>
-            </div>
-            <article class="cd-timeline-content" data-aos="fade-up">
-                <div class="article col s12 m6">
-                    <div class="card">
-                        <a href="/Alan.github.io/uncategorized/attention-is-all-you-need/">
-                            <div class="card-image">
-                                
-                                
-                                <img src="/Alan.github.io/medias/featureimages/0.jpg" class="responsive-img" alt="Attention Is All You Need">
-                                
-                                <span class="card-title">Attention Is All You Need</span>
-                            </div>
-                        </a>
-                        <div class="card-content article-content">
-                            <div class="summary block-with-text">
-                                
-                                    #transformer核心逻辑图
-
-#1 Input Embedding
-所有的词都是一个512维的向量，这个向量里面具体的内容是需要被训练的，最开始的时候可以认为是随机的小数字，随机分配大概在[-5,5]之间左右的一个正太分布（工程经验
-                                
-                            </div>
-                            <div class="publish-info">
-                                <span class="publish-date">
-                                    <i class="far fa-clock fa-fw icon-date"></i>2026-02-09
-                                </span>
-                                <span class="publish-author">
-                                    
-                                    <i class="fas fa-user fa-fw"></i>
-                                    alan-liu
-                                    
-                                </span>
-                            </div>
-                        </div>
-
-                        
-                        <div class="card-action article-tags">
-                            
-                            <a href="/Alan.github.io/tags/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/"><span class="chip bg-color">人工智能</span></a>
-                            
-                        </div>
-                        
-                    </div>
-                </div>
-            </article>
-        </div>
-        
-        <div class="cd-timeline-block">
-
-            
-            
-
-            
-            
-
-            
-            <div class="cd-timeline-img day" data-aos="zoom-in-up">
-                <span>09</span>
-            </div>
-            <article class="cd-timeline-content" data-aos="fade-up">
-                <div class="article col s12 m6">
-                    <div class="card">
-                        <a href="/Alan.github.io/uncategorized/xv6-lab3/">
-                            <div class="card-image">
-                                
-                                
-                                <img src="/Alan.github.io/medias/featureimages/0.jpg" class="responsive-img" alt="Xv6-Lab3内存管理">
-                                
-                                <span class="card-title">Xv6-Lab3内存管理</span>
-                            </div>
-                        </a>
-                        <div class="card-content article-content">
-                            <div class="summary block-with-text">
-                                
-                                    #进程的虚拟内存是如何分配的？
-#MMU
-每一个进程都有一个虚拟的，独立的内存空间，从00000-MAX。为了达到这个目标，我们为每一个进程设置一个MMU，MMU的功能是将虚拟的内存地址和真实的内存地址家里起一个对应。
-MMU的本质是一个3
-                                
-                            </div>
-                            <div class="publish-info">
-                                <span class="publish-date">
-                                    <i class="far fa-clock fa-fw icon-date"></i>2026-02-09
-                                </span>
-                                <span class="publish-author">
-                                    
-                                    <i class="fas fa-user fa-fw"></i>
-                                    alan-liu
-                                    
-                                </span>
-                            </div>
-                        </div>
-
-                        
-                        <div class="card-action article-tags">
-                            
-                            <a href="/Alan.github.io/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"><span class="chip bg-color">操作系统</span></a>
-                            
-                        </div>
-                        
-                    </div>
-                </div>
-            </article>
-        </div>
-        
-        <div class="cd-timeline-block">
-
-            
-            
-
-            
-            
-            
-            <div class="cd-timeline-img month" data-aos="zoom-in-up">
-                <a href="/Alan.github.io/archives/2026/01">01</a>
-            </div>
-            
-
-            
-            <div class="cd-timeline-img day" data-aos="zoom-in-up">
-                <span>23</span>
-            </div>
-            <article class="cd-timeline-content" data-aos="fade-up">
-                <div class="article col s12 m6">
-                    <div class="card">
-                        <a href="/Alan.github.io/uncategorized/first-essay/">
-                            <div class="card-image">
-                                
-                                
-                                <img src="/Alan.github.io/medias/featureimages/0.jpg" class="responsive-img" alt="测试博客">
-                                
-                                <span class="card-title">测试博客</span>
-                            </div>
-                        </a>
-                        <div class="card-content article-content">
-                            <div class="summary block-with-text">
-                                
-                                    这是我的第一篇markdown文档
-
-                                
-                            </div>
-                            <div class="publish-info">
-                                <span class="publish-date">
-                                    <i class="far fa-clock fa-fw icon-date"></i>2026-01-23
-                                </span>
-                                <span class="publish-author">
-                                    
-                                    <i class="fas fa-user fa-fw"></i>
-                                    alan-liu
-                                    
-                                </span>
-                            </div>
-                        </div>
-
-                        
-                        <div class="card-action article-tags">
-                            
-                            <a href="/Alan.github.io/tags/%E6%B5%8B%E8%AF%95/"><span class="chip bg-color">测试</span></a>
-                            
-                        </div>
-                        
-                    </div>
-                </div>
-            </article>
-        </div>
-        
-    </div>
 
 </main>
 

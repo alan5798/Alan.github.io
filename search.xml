@@ -1,46 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>测试博客</title>
-    <url>/Alan.github.io/uncategorized/first-essay/</url>
-    <content><![CDATA[<p>这是我的第一篇markdown文档</p>
-]]></content>
-      <tags>
-        <tag>测试</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Xv6-Lab3内存管理</title>
-    <url>/Alan.github.io/uncategorized/xv6-lab3/</url>
-    <content><![CDATA[<h2 id="进程的虚拟内存是如何分配的？"><a class="header-anchor" href="#进程的虚拟内存是如何分配的？">#</a>进程的虚拟内存是如何分配的？</h2>
-<h3 id="MMU"><a class="header-anchor" href="#MMU">#</a>MMU</h3>
-<p>每一个进程都有一个虚拟的，独立的内存空间，从00000-MAX。为了达到这个目标，我们为每一个进程设置一个MMU，MMU的功能是将虚拟的内存地址和真实的内存地址家里起一个对应。</p>
-<p>MMU的本质是一个3层的512叉树，树的节点被称作PTE，功能是将64位的虚拟地址（下文简称VA）和56位的物理地址（下文简称PA）一一对应。</p>
-<h3 id="MMU的运行原理"><a class="header-anchor" href="#MMU的运行原理">#</a>MMU的运行原理</h3>
-<p>对于64位的VA，我们将它拆成25+9+9+9+12；对于56位的物理地址PA，我们将它拆成44+12。VA中的后12位与PA中的后12位完全相同，直接等价，这对应OS中页的概念（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>12</mn></msup><mo>=</mo><mn>4</mn><mi>K</mi><mi>B</mi></mrow><annotation encoding="application/x-tex">2^{12}=4KB</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">12</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">4</span><span class="mord mathnormal" style="margin-right:0.07153em;">K</span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span></span></span></span>)。VA中的前25位直接舍弃。而对于中间的9+9+9，就分别对应了MMU的3层512叉树（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>9</mn></msup><mo>=</mo><mn>512</mn></mrow><annotation encoding="application/x-tex">2^9=512</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">9</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">512</span></span></span></span>)。</p>
-<p>MMU作为树是动态生长的，即最开始并不存在一个完整的3层512叉树，而是虚拟地址进入MMU后被创建的。而创建的过程如下图所示</p>
-<h3 id="虚拟内存映射图"><a class="header-anchor" href="#虚拟内存映射图">#</a>虚拟内存映射图</h3>
-<p><img src="virtual_address_to_physical_address.png" alt=""><br>
-图中PPN就是Physical Page Number的缩写，后面的10位RSW D A G U X W R V 就是Flags，第一层和第二层的PPN是为了找到后面一个tree在哪里的，而最后一个PPN决定了最终的物理地址PA（physical address)。</p>
-<h2 id="物理内存与虚拟内存的全局对应关系"><a class="header-anchor" href="#物理内存与虚拟内存的全局对应关系">#</a>物理内存与虚拟内存的全局对应关系</h2>
-<h3 id="物理内存与虚拟内存映射的全局映射关系图"><a class="header-anchor" href="#物理内存与虚拟内存映射的全局映射关系图">#</a>物理内存与虚拟内存映射的全局映射关系图</h3>
-<p><img src="global_memory_mapping.png" alt=""></p>
-<h4 id="硬件驱动存储区"><a class="header-anchor" href="#硬件驱动存储区">#</a>硬件驱动存储区</h4>
-<p>由图可以观察到，物理内存的最底层1000是不用的，ROM是只读内存，属于系统核心文件。在0x02000000才开始使用。而到KERNBASE线前，这部分的内存属于硬件驱动程序，虚拟地址和实际地址意一一对应。</p>
-<h4 id="内核存储区"><a class="header-anchor" href="#内核存储区">#</a>内核存储区</h4>
-<p>在kernbase到Phystop之间的程序就是内核程序，也就是我们熟悉的操作系统所存储的地方，这里的虚拟地址和物理地址一一对应（从中我们可知内核态的程序所谓的全知视角，所谓可以看到物理内存，根本原因是他们的虚拟内存和物理内存是一一对应的，故而内核进程可以说自己决定的是真实地址）</p>
-<h4 id="进程存储区"><a class="header-anchor" href="#进程存储区">#</a>进程存储区</h4>
-<p>在kernbase这条线之上，也就是一个进程以为自以为自己拥有的内存，但实际是经过MMU分配的结果，而值得注意的是每个进程的顶层，即Trampoline（蹦床）都指向了内核的同一个位置，这是方便操作系统对各个进程的控制。</p>
-<h2 id="进程内内存的分布"><a class="header-anchor" href="#进程内内存的分布">#</a>进程内内存的分布</h2>
-<h3 id="进程内内存分布图"><a class="header-anchor" href="#进程内内存分布图">#</a>进程内内存分布图</h3>
-<p><img src="user_memory.png" alt=""><br>
-这张图里stack和heap的位置和一般的操作系统相反，一般的布局是stack在上向下生长，而heap从下往上生长。这张图其他的信息比较明确就不做解释了。</p>
-]]></content>
-      <tags>
-        <tag>操作系统</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Attention Is All You Need</title>
     <url>/Alan.github.io/uncategorized/attention-is-all-you-need/</url>
     <content><![CDATA[<h2 id="transformer核心逻辑图"><a class="header-anchor" href="#transformer核心逻辑图">#</a>transformer核心逻辑图</h2>
@@ -168,6 +128,128 @@ M834 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist
 ]]></content>
       <tags>
         <tag>人工智能</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Xv6-Lab9 文件管理系统VFS</title>
+    <url>/Alan.github.io/uncategorized/vfs/</url>
+    <content><![CDATA[<h3 id="VFS的基础逻辑图"><a class="header-anchor" href="#VFS的基础逻辑图">#</a>VFS的基础逻辑图</h3>
+<p>![[VFS.png]]<br>
+首先值得强调的一点是，这个逻辑图应该稍有问题，以我学下来的理解logging part应该在Buffer cache的下面。这张图只是先从逻辑上先对OS如何操作硬盘进行一个分析，后面会具体分解</p>
+<h3 id="磁盘内部结构"><a class="header-anchor" href="#磁盘内部结构">#</a>磁盘内部结构</h3>
+<p><strong>回答的问题：磁盘是如何储存数据的，内部结构如何？</strong><br>
+![[Disk.png]]<br>
+这是xv6对于磁盘内部结构图的示意，对于磁盘而言，类似内存，我们也对其进行划分，和内存中page对应的，在磁盘中叫做block。那么自然而言的，大部分的磁盘空间肯定需要用来保存数据，所以被我们用来存放data，在图中也就是D。但是由于文件大小不一，不可能放在一起，同时文件又是我们操作系统操作的基本单位，所以就需要一些struct来管理文件，这些struct就是inode，也就是图中I的内容，在xv6中他们的大小是64Byte；关于inode后面会详细讲解。在处理完inode和data之后，我们还会想到需要一些数据来记录每一个block，是不是已经被分配了，还是未被处理，所以我们需要bit_map来记录信息，所以我们有了两个bit_map分别记录inode和data的信息，他们只有0，1组成，只记录每一个位置是不是被alloc了。</p>
+<h3 id="inode的定义"><a class="header-anchor" href="#inode的定义">#</a>inode的定义</h3>
+<p><strong>回答的问题：inode是什么，我们为什么需要inode</strong></p>
+<pre class="line-numbers language-none"><code class="language-none">struct inode {
+  uint dev;           // Device numbr
+  uint inum;          // Inode number
+  int ref;            // Reference count
+  struct sleeplock lock; // protects everything below here
+  int valid;          // inode has been read from disk?
+
+  short type;         // copy of disk inode
+  short major;
+  short minor;
+  short nlink;
+  uint sizejj;
+  uint addrs[NDIRECT+1];
+};<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>inode的核心职能就是储存文件的关键信息，比如大小，比如设备号等等，而在这当中，有几个比较重要的信息，一个是inum，这是这个文件唯一的inode号，通过inum可以找到对应的inode，第二个是uint addrs，这是文件组织block的关键，所有的block都是按照addrs按照顺序组织。</p>
+<p>值得注意的是对于磁盘中，我们还有一个dinode，而且这个dinode 的大小是64Byte，专门设计出来的，为了能够在一个1024的大小中刚好塞下16个dinode，所以相比上面的inode少了一些信息。</p>
+<h3 id="多级映射"><a class="header-anchor" href="#多级映射">#</a>多级映射</h3>
+<p><strong>回答的问题：inode是如何组织文件的，inode怎么把文件所在的不同block连在一起</strong></p>
+<p>关于addrs,在xv6中NDIRECT=12，但是一个文件显然可能不止<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>12</mn><mo>×</mo><mn>4</mn><mi>K</mi><mi>B</mi></mrow><annotation encoding="application/x-tex">12\times4KB</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">12</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">4</span><span class="mord mathnormal" style="margin-right:0.07153em;">K</span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span></span></span></span>，所以第12位就会留出来作为一个映射，它指向一个block的地址，而这个block则被用来专门储存地址。如果更大的文件，则可以以此类推，将倒数第二位流出来给一级映射，将最后一位留出来给二级映射。具体的操作可以看下面这段代码，这是bmap（一级映射的逻辑）</p>
+<pre class="line-numbers language-none"><code class="language-none">static uint
+bmap(struct inode *ip, uint bn)
+{
+&nbsp; uint addr, *a;
+&nbsp; struct buf *bp;
+&nbsp; if(bn &lt; NDIRECT){
+&nbsp; &nbsp; if((addr = ip-&gt;addrs[bn]) == 0){
+&nbsp; &nbsp; &nbsp; addr = balloc(ip-&gt;dev);
+&nbsp; &nbsp; &nbsp; if(addr == 0)
+&nbsp; &nbsp; &nbsp; &nbsp; return 0;
+&nbsp; &nbsp; &nbsp; ip-&gt;addrs[bn] = addr;
+&nbsp; &nbsp; }
+&nbsp; &nbsp; return addr;
+&nbsp; }
+&nbsp; bn -= NDIRECT;
+&nbsp; if(bn &lt; NINDIRECT){
+&nbsp; &nbsp; // Load indirect block, allocating if necessary.
+&nbsp; &nbsp; if((addr = ip-&gt;addrs[NDIRECT]) == 0){
+&nbsp; &nbsp; &nbsp; addr = balloc(ip-&gt;dev);
+&nbsp; &nbsp; &nbsp; if(addr == 0)
+&nbsp; &nbsp; &nbsp; &nbsp; return 0;
+&nbsp; &nbsp; &nbsp; ip-&gt;addrs[NDIRECT] = addr;
+&nbsp; &nbsp; }
+&nbsp; &nbsp; bp = bread(ip-&gt;dev, addr);
+&nbsp; &nbsp; a = (uint*)bp-&gt;data;
+&nbsp; &nbsp; if((addr = a[bn]) == 0){
+&nbsp; &nbsp; &nbsp; addr = balloc(ip-&gt;dev);
+&nbsp; &nbsp; &nbsp; if(addr){
+&nbsp; &nbsp; &nbsp; &nbsp; a[bn] = addr;
+&nbsp; &nbsp; &nbsp; &nbsp; log_write(bp);
+&nbsp; &nbsp; &nbsp; }
+&nbsp; &nbsp; }
+&nbsp; &nbsp; brelse(bp);
+&nbsp; &nbsp; return addr;
+&nbsp; }
+&nbsp; panic("bmap: out of range");
+&nbsp;}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="Pathname-and-Directory"><a class="header-anchor" href="#Pathname-and-Directory">#</a>Pathname and Directory</h3>
+<p><strong>回答的问题：当我们已经理解了文件是如何组织的，那操作系统是如何找到一个具体的文件的</strong></p>
+<p>Pathname 和Directory 的解析就是一个递归的过程。首先，在UNIX哲学中，一切皆文件，文件夹本身也是一个文件，包含了各个文件的inumber和自己的以及父目录的内容<br>
+![[route_analysis.png]]<br>
+如图所示，在记录好这些inumber后，解析路径的程序从根目录开始，依次递归地寻找所需要的文件，即根据自己的inumber，找到对应的inode，找到存储的data，读取出该目录下的name，进行比对，进而再找到对应的inumber，开启下一个循环。出于习惯，根目录的inumber一般是2。而由于IO操作是非常慢的，所以当进程找到对应的文件时，往往会保存每次解析得到的各文件夹和该文件的inumber，以避免反复重复解析。</p>
+<h3 id="Buffer-and-Logging"><a class="header-anchor" href="#Buffer-and-Logging">#</a>Buffer and Logging</h3>
+<p><strong>回答的问题：磁盘的每次IO操作是很慢的，同时由于断电风险引发的磁盘内部错位危机严重，我们有什么方法避免解决呢</strong></p>
+<p>Buffer 通过LRU原则（Least Recent Used)，将最新用过的信息储存在cache（cache本身在内存里），再刷入硬盘，通过这样的方式，如果cache已经满了的话，那就删掉least recent used的block。由于绝大多数时候需要使用的文件会反复使用，cache可以极大地提高效率。</p>
+<p>Logging则是用来解决断电危机的，由于一旦断电，内存里的内容将无法保存，所以我们需要保证重要的内容已经被写入硬盘。但是当我们需要传一个大文件的时候，大文件传到一半断电会导致硬盘中保存了错误的文件，为了解决该问题，我们设置了Logging 区，Logging区本身也在硬盘里，不过它不会立刻刷入data，它会等文件传输完之后的finished标签，如果得到了finished，则一起刷入data，如果没有，则在下次执行时把logging的部分全部删除，以保证文件的完整性。由于logging本身在一起，所以不同于需要磁针反复乱跳的data区，logging本身在硬盘上操作效率较高。</p>
+]]></content>
+      <tags>
+        <tag>操作系统</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>测试博客</title>
+    <url>/Alan.github.io/uncategorized/first-essay/</url>
+    <content><![CDATA[<p>这是我的第一篇markdown文档</p>
+]]></content>
+      <tags>
+        <tag>测试</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Xv6-Lab3内存管理</title>
+    <url>/Alan.github.io/uncategorized/xv6-lab3/</url>
+    <content><![CDATA[<h2 id="进程的虚拟内存是如何分配的？"><a class="header-anchor" href="#进程的虚拟内存是如何分配的？">#</a>进程的虚拟内存是如何分配的？</h2>
+<h3 id="MMU"><a class="header-anchor" href="#MMU">#</a>MMU</h3>
+<p>每一个进程都有一个虚拟的，独立的内存空间，从00000-MAX。为了达到这个目标，我们为每一个进程设置一个MMU，MMU的功能是将虚拟的内存地址和真实的内存地址家里起一个对应。</p>
+<p>MMU的本质是一个3层的512叉树，树的节点被称作PTE，功能是将64位的虚拟地址（下文简称VA）和56位的物理地址（下文简称PA）一一对应。</p>
+<h3 id="MMU的运行原理"><a class="header-anchor" href="#MMU的运行原理">#</a>MMU的运行原理</h3>
+<p>对于64位的VA，我们将它拆成25+9+9+9+12；对于56位的物理地址PA，我们将它拆成44+12。VA中的后12位与PA中的后12位完全相同，直接等价，这对应OS中页的概念（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>12</mn></msup><mo>=</mo><mn>4</mn><mi>K</mi><mi>B</mi></mrow><annotation encoding="application/x-tex">2^{12}=4KB</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">12</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">4</span><span class="mord mathnormal" style="margin-right:0.07153em;">K</span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span></span></span></span>)。VA中的前25位直接舍弃。而对于中间的9+9+9，就分别对应了MMU的3层512叉树（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>9</mn></msup><mo>=</mo><mn>512</mn></mrow><annotation encoding="application/x-tex">2^9=512</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">9</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">512</span></span></span></span>)。</p>
+<p>MMU作为树是动态生长的，即最开始并不存在一个完整的3层512叉树，而是虚拟地址进入MMU后被创建的。而创建的过程如下图所示</p>
+<h3 id="虚拟内存映射图"><a class="header-anchor" href="#虚拟内存映射图">#</a>虚拟内存映射图</h3>
+<p><img src="virtual_address_to_physical_address.png" alt=""><br>
+图中PPN就是Physical Page Number的缩写，后面的10位RSW D A G U X W R V 就是Flags，第一层和第二层的PPN是为了找到后面一个tree在哪里的，而最后一个PPN决定了最终的物理地址PA（physical address)。</p>
+<h2 id="物理内存与虚拟内存的全局对应关系"><a class="header-anchor" href="#物理内存与虚拟内存的全局对应关系">#</a>物理内存与虚拟内存的全局对应关系</h2>
+<h3 id="物理内存与虚拟内存映射的全局映射关系图"><a class="header-anchor" href="#物理内存与虚拟内存映射的全局映射关系图">#</a>物理内存与虚拟内存映射的全局映射关系图</h3>
+<p><img src="global_memory_mapping.png" alt=""></p>
+<h4 id="硬件驱动存储区"><a class="header-anchor" href="#硬件驱动存储区">#</a>硬件驱动存储区</h4>
+<p>由图可以观察到，物理内存的最底层1000是不用的，ROM是只读内存，属于系统核心文件。在0x02000000才开始使用。而到KERNBASE线前，这部分的内存属于硬件驱动程序，虚拟地址和实际地址意一一对应。</p>
+<h4 id="内核存储区"><a class="header-anchor" href="#内核存储区">#</a>内核存储区</h4>
+<p>在kernbase到Phystop之间的程序就是内核程序，也就是我们熟悉的操作系统所存储的地方，这里的虚拟地址和物理地址一一对应（从中我们可知内核态的程序所谓的全知视角，所谓可以看到物理内存，根本原因是他们的虚拟内存和物理内存是一一对应的，故而内核进程可以说自己决定的是真实地址）</p>
+<h4 id="进程存储区"><a class="header-anchor" href="#进程存储区">#</a>进程存储区</h4>
+<p>在kernbase这条线之上，也就是一个进程以为自以为自己拥有的内存，但实际是经过MMU分配的结果，而值得注意的是每个进程的顶层，即Trampoline（蹦床）都指向了内核的同一个位置，这是方便操作系统对各个进程的控制。</p>
+<h2 id="进程内内存的分布"><a class="header-anchor" href="#进程内内存的分布">#</a>进程内内存的分布</h2>
+<h3 id="进程内内存分布图"><a class="header-anchor" href="#进程内内存分布图">#</a>进程内内存分布图</h3>
+<p><img src="user_memory.png" alt=""><br>
+这张图里stack和heap的位置和一般的操作系统相反，一般的布局是stack在上向下生长，而heap从下往上生长。这张图其他的信息比较明确就不做解释了。</p>
+]]></content>
+      <tags>
+        <tag>操作系统</tag>
       </tags>
   </entry>
 </search>
