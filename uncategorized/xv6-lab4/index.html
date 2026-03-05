@@ -320,9 +320,9 @@
                 <h3 id="程序运行逻辑"><a class="header-anchor" href="#程序运行逻辑">#</a>程序运行逻辑</h3>
 <p>在执行程序的时候，首先，它读取硬盘里的ELF（可执行文件），并把它拷贝到内存里，内存中单独开辟一个进程，进程仍然有MMU来进行内存分配，获得虚拟内存从0-MAX。这里0-MAX仍然按照从trampoline-0的分布。然后执行的时候，五步流水线的第一步，PC计数器（本质就是一个指针），指向text的最高位，然后按照指令的要求，执行。但是text当中往往没有数据，所以只是指示寄存器，比如add s1 s2 s3的意思是把s2,s3的寄存器中的数加和并放到s1中，s2,s3的数据从heap，stack，data中得到。</p>
 <h4 id="内存分配图"><a class="header-anchor" href="#内存分配图">#</a>内存分配图</h4>
-<p>![[memory_graph.png]]</p>
+<p><img src="memory_graph.png" alt=""></p>
 <h4 id="运行逻辑图"><a class="header-anchor" href="#运行逻辑图">#</a>运行逻辑图</h4>
-<p>![[logic_graph.png]]</p>
+<p><img src="logic_graph.png" alt=""></p>
 <h3 id="返回地址ra"><a class="header-anchor" href="#返回地址ra">#</a>返回地址ra</h3>
 <p>对于具体运行中的程序，PC计数器（本质是指针）会随着函数的调用不断跳转，为了在执行完这个程序还能找到上一个函数位置在哪里，我们需要将上一个函数后面要执行代码的地址存入一个寄存器当中，我们通常将这个寄存器叫做ra。但是由于函数可能层层调用，而ra会被复写，所以我们需要维护一个ra链表，以保证程序的顺利运行。ra等地址所在的位置就是在stack中。它的结构大概是这样的</p>
 <pre class="line-numbers language-none"><code class="language-none">struct Node{
