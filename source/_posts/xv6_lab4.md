@@ -22,6 +22,55 @@ struct Node{
 	Node* fp;//前一个节点的位置
 }
 ```
+---
+## trap——程序中断处理
+正如上图中的内存示意图，每一个进程都被分配了一个trapframe，trapframe中存储了这个进程当下的所有信息
+```
+struct trapframe {
+  /*   0 */ uint64 kernel_satp;   // kernel page table
+  /*   8 */ uint64 kernel_sp;     // top of process's kernel stack
+  /*  16 */ uint64 kernel_trap;   // usertrap()
+  /*  24 */ uint64 epc;           // saved user program counter
+  /*  32 */ uint64 kernel_hartid; // saved kernel tp
+  /*  40 */ uint64 ra;
+  /*  48 */ uint64 sp;
+  /*  56 */ uint64 gp;
+  /*  64 */ uint64 tp;
+  /*  72 */ uint64 t0;
+  /*  80 */ uint64 t1;
+  /*  88 */ uint64 t2;
+  /*  96 */ uint64 s0;
+  /* 104 */ uint64 s1;
+  /* 112 */ uint64 a0;
+  /* 120 */ uint64 a1;
+  /* 128 */ uint64 a2;
+  /* 136 */ uint64 a3;
+  /* 144 */ uint64 a4;
+  /* 152 */ uint64 a5;
+  /* 160 */ uint64 a6;
+  /* 168 */ uint64 a7;
+  /* 176 */ uint64 s2;
+  /* 184 */ uint64 s3;
+  /* 192 */ uint64 s4;
+  /* 200 */ uint64 s5;
+  /* 208 */ uint64 s6;
+  /* 216 */ uint64 s7;
+  /* 224 */ uint64 s8;
+  /* 232 */ uint64 s9;
+  /* 240 */ uint64 s10;
+  /* 248 */ uint64 s11;
+  /* 256 */ uint64 t3;
+  /* 264 */ uint64 t4;
+  /* 272 */ uint64 t5;
+  /* 280 */ uint64 t6;
+}
+```
+我们对trapframe的调用可能会遇两种不同的情形
+
+* 内核中断了这个进程，比如一个进程过长时间地占用了cpu，这个时候内核强制将PC程序计数器跳转，而为了保存当前局面，我们需要保留这个trapframe，而因为kalloc是上锁 ，所以不会有其他进程能修改这个trapframe，我们只需要p->trapframe就足够了
+
+* 如果进程内想要中断程序，进入内核，并跳转，那我们就需要另一个单独的trapframe来保存目前的局面了，因为epc本身会时时刻刻更改。
+
 
 
 
